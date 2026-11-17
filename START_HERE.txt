@@ -1,0 +1,346 @@
+==============================================================================
+  ORRERY  -  START HERE
+  A chat agent that searches the web and remembers what you asked, and when.
+==============================================================================
+
+What you will have at the end:
+  - Orrery running at  http://localhost:5173
+  - Backend: Java 21 + Spring Boot.  Frontend: React + TypeScript.
+  - Memory stored in one file:  data\orrery.db
+
+Time needed: about 15 minutes the first time (most of it is downloads).
+After that, starting it takes about 20 seconds.
+
+
+==============================================================================
+  PART 1  -  ONE-TIME SETUP  (do these in order)
+==============================================================================
+
+STEP 1. Install Node.js (needed)
+------------------------------------------------------------------------------
+  1. Go to  https://nodejs.org  and download the "LTS" version for Windows.
+  2. Run the installer. Keep every default and click Next until it finishes.
+  3. Open a NEW Command Prompt and check:
+
+        node -v
+
+     You must see v22.12 or higher (v20.19 or higher also works).
+     If you see "'node' is not recognized", restart the computer and try again.
+
+
+STEP 2. Install Java 21 (recommended, not required)
+------------------------------------------------------------------------------
+  If you skip this, "npm run dev" downloads Java into the project folder by
+  itself the first time (about 190 MB). Installing it yourself is faster and
+  cleaner:
+
+  1. Go to  https://adoptium.net  and download "Temurin 21 (LTS)",
+     Windows, x64, the .msi file.
+  2. Run it. On the "Custom Setup" screen, click "Set JAVA_HOME variable"
+     and choose "Will be installed on local hard drive". Then finish.
+  3. Open a NEW Command Prompt and check:
+
+        java -version
+
+     You should see:  openjdk version "21..."
+
+  You do NOT need to install Maven. npm run dev fetches it when needed.
+
+
+STEP 3. Extract the zip to the right place
+------------------------------------------------------------------------------
+  1. Right-click  Orrery_Project.zip  ->  Extract All...
+  2. Set the folder to:   C:\Users\abhib
+  3. Click Extract. You now have:   C:\Users\abhib\orrery
+
+  IMPORTANT:
+  - Do NOT extract inside OneDrive or the Desktop. OneDrive locks files while
+    it syncs and breaks the build.
+  - Do NOT browse the zip without extracting it. Windows shows zip contents
+    like a folder, but nothing inside can run.
+  - Check it worked. In Command Prompt:
+
+        dir C:\Users\abhib\orrery
+
+    You should see START_HERE.txt, package.json, README.md, DESIGN.md and the
+    folders backend, web, scripts, docs. If you see a folder called "orrery"
+    inside "orrery", you extracted it one level too deep: move it up.
+
+
+STEP 4. Get two free API keys (no credit card needed)
+------------------------------------------------------------------------------
+  A) A MODEL key. Pick ONE:
+     - Groq (fast, free):     https://console.groq.com/keys
+       Sign in -> "Create API Key" -> copy it. It starts with  gsk_
+     - Google Gemini (free):  https://aistudio.google.com/apikey
+       "Create API key" -> copy it. It starts with  AIza
+
+  B) A SEARCH key:
+     - Tavily (1,000 free searches a month):  https://app.tavily.com/home
+       Sign in -> your key is on the dashboard. It starts with  tvly-
+
+  Keep both somewhere safe (a note on your phone is fine for now).
+  Never paste them into chats, screenshots or GitHub.
+
+
+STEP 5. Open the project in VS Code
+------------------------------------------------------------------------------
+  1. Open VS Code -> File -> Open Folder -> choose  C:\Users\abhib\orrery
+  2. Open a terminal: menu Terminal -> New Terminal  (or press  Ctrl + ` )
+  3. Use Command Prompt, not PowerShell: click the small arrow next to the "+"
+     in the terminal panel and pick "Command Prompt".
+     (PowerShell may say "running scripts is disabled". See PART 4, problem 2.)
+
+
+STEP 6. Install the frontend packages
+------------------------------------------------------------------------------
+  In the terminal:
+
+        npm install
+
+  Takes about a minute. Some yellow "warn" lines are normal.
+  It must end without red "ERR!" lines.
+
+
+STEP 7. Start Orrery for the first time
+------------------------------------------------------------------------------
+  In the terminal:
+
+        npm run dev
+
+  The first run does several things and shows each one:
+    - creates the .env file (your settings) from .env.example
+    - finds Java (or downloads it, if you skipped Step 2)
+    - downloads Maven and the Spring Boot libraries, then builds the backend.
+      This takes 1 to 3 minutes the FIRST time only.
+    - starts the backend and the website
+
+  When you see this, it is ready:
+
+        Orrery is running
+          Open      http://localhost:5173
+
+  Leave this terminal open while you use Orrery.
+
+
+STEP 8. Add your keys
+------------------------------------------------------------------------------
+  1. In VS Code, open the file  .env  (in the left file list, at the top).
+  2. Find these lines and paste your keys right after the  =  sign:
+
+        GROQ_API_KEY=gsk_paste_your_key_here
+        TAVILY_API_KEY=tvly-paste_your_key_here
+
+     (If you chose Gemini, fill  GEMINI_API_KEY=  instead of GROQ_API_KEY=)
+
+     Rules: no spaces around "=", no quotes, nothing else on the line.
+  3. Save the file (Ctrl + S).
+
+  The terminal prints ".env changed, restarting the backend" and then the
+  model and search provider it found. No need to restart anything yourself.
+
+
+STEP 9. Open it
+------------------------------------------------------------------------------
+  Go to   http://localhost:5173   in Chrome or Edge.
+  You should see a glowing 3D orrery and "Answers that know what day it is."
+
+  If the page lists missing keys instead, Step 8 did not take. See PART 4,
+  problem 6.
+
+
+==============================================================================
+  PART 2  -  EVERY TIME AFTER THAT  (3 steps)
+==============================================================================
+
+  1. Open  C:\Users\abhib\orrery  in VS Code, open a Command Prompt terminal.
+  2. Run:     npm run dev
+  3. Open:    http://localhost:5173
+
+  To stop: click in the terminal and press  Ctrl + C.
+  Your conversations are kept in  data\orrery.db  between runs.
+
+
+==============================================================================
+  PART 3  -  SHOWING IT TO YOUR MENTOR OR THE JUDGES  (about 6 minutes)
+==============================================================================
+
+  The brief's questions are about the past ("On Monday...", "Last Tuesday...").
+  The demo tools give Orrery a past to remember, through the real agent.
+
+  1. LOAD A PAST
+     On the empty screen, click "Load sample history" -> "Load history".
+     It creates three real conversations dated 3 November, this week's Monday
+     and last Tuesday (about a minute). The sidebar now lists them by day.
+
+  2. ASK THE THREE QUESTIONS FROM THE BRIEF  (click them on the empty screen)
+     - On Monday we shortlisted 5 CRM tools for a 20-person sales team.
+       Has any of them changed pricing or shipped something big since?
+     - What did I ask you on 3 November? Is your answer still correct today?
+     - Last Tuesday I asked you about Postgres hosting.
+       Has any pricing changed since then?
+
+     Point out, in this order:
+     - "From memory: Tuesday 10 Nov": it worked out the date by itself and
+       found that exact conversation (click the brass date chip to open it).
+     - The searches with brass "since 10 Nov" chips: it searches for news
+       from that day onwards, several searches at once.
+     - The table: Then / Now / Status, with Unchanged / Changed / New.
+     - The small numbered chips: hover one to see the source; every figure
+       is cited.
+     - "Answered in 4.2 s" under the answer.
+
+  3. SHOW IT IS HONEST
+     Ask:   What did I ask you on 5 November?
+     There was no conversation that day. It says so, instead of inventing one.
+
+  4. SHOW IT IS FAST WHEN IT SHOULD BE
+     Type:  thanks!     The reply comes back almost at once, with no searching.
+
+  5. SHOW THE MEMORY
+     Sidebar -> Memory: every question under the day it was asked.
+     "Ledger of facts": every price and version it stated, with the date it
+     was true and the source.
+
+  6. OPTIONAL EXTRAS
+     - "Re-check today" under any answer: checks that answer against the web
+       again and says what changed.
+     - Sidebar -> "Clock: real time": set a pretend date and time, then ask
+       "what did I ask yesterday?"
+     - The Stop button (or Esc) stops an answer immediately.
+
+  7. SHOW THE ENGINEERING  (open a second terminal with the + button)
+        npm test        runs 86 backend tests and the frontend tests
+        npm run eval    asks the brief's questions for real and scores them
+                        (needs "npm run dev" running in the first terminal)
+
+  Read DESIGN.md before the demo: it is one page and covers every "why".
+  docs\WALKTHROUGH.md explains each part in plain words and lists the
+  questions people usually ask, with answers.
+
+
+==============================================================================
+  PART 4  -  IF SOMETHING GOES WRONG
+==============================================================================
+
+ 1. "'npm' is not recognized" or "'node' is not recognized"
+    Node.js is not installed, or the terminal was open before you installed
+    it. Close VS Code completely, open it again. If it still fails, restart
+    the computer. Then check  node -v  again.
+
+ 2. PowerShell says "running scripts is disabled on this system"
+    Switch the terminal to Command Prompt (see Step 5), or run this once in
+    PowerShell and then try again:
+        Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+
+ 3. "Node.js ... is too old"
+    Install the current LTS from nodejs.org (Step 1), reopen VS Code.
+
+ 4. The first build fails with "Could not transfer artifact" or
+    "Could not reach Maven Central"
+    The network blocked the download of Spring Boot libraries (college Wi-Fi
+    often does). Connect to a phone hotspot and run  npm run dev  again.
+    It only needs the internet for this the first time.
+
+ 5. "No Java 21+ JDK found" and the automatic download also fails
+    Install Java yourself (Step 2), close and reopen VS Code, run again.
+
+ 6. The page keeps showing "Two free keys and Orrery is ready"
+    - Is the file named exactly  .env  ?  Not .env.txt, not env.
+      (npm run dev renames .env.txt for you, but check.)
+    - Is each key on its own line, right after "=", with no spaces or quotes?
+    - Did you save the file (Ctrl + S)? The terminal should say
+      ".env changed, restarting the backend".
+    - Still stuck: stop with Ctrl + C and run  npm run dev  again. It prints
+      which model and search provider it found.
+
+ 7. An answer says "Your model key was rejected" (or search key)
+    The key was copied wrong or deleted. Make a new key (Step 4), replace it
+    in .env, save.
+
+ 8. "The model provider is rate limiting" or answers stop for a minute
+    Free tiers limit requests per minute. Wait a minute, or add a second
+    model key (for example GEMINI_API_KEY as well as GROQ_API_KEY).
+
+ 9. "Search failed" / "plan limit reached"
+    Tavily's free tier has 1,000 searches a month. Add BRAVE_API_KEY or
+    SERPER_API_KEY too; Orrery switches to the next one automatically.
+
+10. "Port 8080 is already in use"
+    Nothing to do: npm run dev picks the next free port by itself. If the
+    website port 5173 is taken, it uses 5174 and prints the address.
+
+11. The page says "Waiting for the backend"
+    The backend is still starting or restarting. Watch the terminal; the page
+    connects by itself once it is up.
+
+12. Windows Defender or an antivirus asks about java.exe
+    Click "Allow". Orrery's backend only listens on your own computer.
+
+13. Start completely fresh
+    Stop it (Ctrl + C), then delete what you want to reset:
+        data          all memory (conversations and facts)
+        .runtime      downloaded Java and Maven, and build logs
+        backend\target   forces the backend to rebuild
+    For example:   rmdir /s /q data
+    Then  npm run dev  again.
+
+14. Anything else
+    The last build log is in  .runtime\logs\backend-build.log
+    The terminal running npm run dev shows the backend's log lines as "api |".
+
+
+==============================================================================
+  PART 5  -  PUTTING IT ON GITHUB  (the hackathon needs a public repo)
+==============================================================================
+
+  Your keys stay out automatically: .gitignore excludes .env, data, .runtime,
+  node_modules and build folders. Never remove .env from .gitignore.
+
+  1. Install Git from  https://git-scm.com  (defaults are fine).
+  2. On github.com: "+" -> New repository -> name it  orrery  -> Public ->
+     do NOT add a README (the project already has one) -> Create.
+  3. In the VS Code terminal, inside C:\Users\abhib\orrery :
+
+        git init
+        git add .
+        git commit -m "Orrery: chat agent with web search and dated memory"
+        git branch -M main
+        git remote add origin https://github.com/Abhi-Beniwal/orrery.git
+        git push -u origin main
+
+  4. Check on GitHub that there is NO .env file in the repository.
+     If there is: delete the keys at Groq/Tavily right away and make new ones.
+
+
+==============================================================================
+  WHAT IS IN THIS FOLDER
+==============================================================================
+
+  START_HERE.txt     this file
+  README.md          overview, commands, configuration, API
+  DESIGN.md          one-page design: how it works, why, what was rejected
+  docs\WALKTHROUGH.md  plain-language tour of every part + likely questions
+  .env.example       every setting, explained (copied to .env on first run)
+  package.json       npm commands: dev, test, eval, build, start
+
+  backend\           the agent: Java 21 + Spring Boot (Maven project)
+    src\main\java\app\orrery\core\    the agent itself, no Spring inside
+    src\main\java\app\orrery\infra\   SQLite database code
+    src\main\java\app\orrery\web\     the HTTP API (Spring controllers)
+    src\test\java\                    86 automated tests
+
+  web\               the website: React + TypeScript
+    src\components\  screens and parts of screens
+    src\hologram\    the 3D orrery (three.js)
+    src\lib\         API client, live stream reader, dates, citations
+    src\state\       app state (conversations, live answers)
+
+  scripts\           what npm run dev / build / start / test / eval do
+
+  Created while running (safe to delete, never upload):
+    .env             your keys
+    data\            the memory database
+    .runtime\        Java and Maven if downloaded, build logs
+    node_modules\    frontend packages
+    backend\target\  the compiled backend
