@@ -1,0 +1,23 @@
+# dependencies and toolchains fetched by the launcher
+node_modules/
+.runtime/
+
+# build output
+web/dist/
+backend/target/
+
+# local configuration and data: never commit keys or memory
+.env
+.env.txt
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# editors and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+*.log
