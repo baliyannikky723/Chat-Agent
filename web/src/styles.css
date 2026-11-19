@@ -1,0 +1,466 @@
+@import "tailwindcss";
+
+/*
+ * Orrery's palette comes from an astronomical instrument at night: deep ink sky,
+ * starlight text, a cyan-lilac hologram, and brass for everything that is about time
+ * (dates, memory, the past). Green and coral only ever mean "unchanged" and "changed".
+ */
+@theme {
+  --color-ink: #0e1630;
+  --color-ink-deep: #0a1126;
+  --color-panel: #131d3b;
+  --color-raised: #19254a;
+  --color-hairline: #26335c;
+  --color-line-strong: #34437a;
+  --color-text: #e8ecf7;
+  --color-muted: #9aa6c7;
+  --color-faint: #7584ad;
+  --color-holo: #7fe3f0;
+  --color-lilac: #b7a6ff;
+  --color-brass: #d9b36c;
+  --color-brass-soft: #f0d9a6;
+  --color-ok: #5fd3a6;
+  --color-changed: #ff8f7e;
+
+  --font-display: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Hanken Grotesk Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-orbit: orbit 1.6s linear infinite;
+  --animate-orbit-slow: orbit 9s linear infinite;
+  --animate-pulse-soft: pulse-soft 1.8s ease-in-out infinite;
+  --animate-caret: caret 1s steps(2, start) infinite;
+  --animate-fade-in: fade-in 180ms ease-out both;
+  --animate-rise-in: rise-in 240ms var(--ease-out-quint) both;
+
+  @keyframes orbit {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+  @keyframes caret {
+    to { visibility: hidden; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+  }
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--color-text);
+    background: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  #root {
+    min-height: 100dvh;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--color-holo) 32%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-holo);
+    outline-offset: 2px;
+  }
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-hairline) transparent;
+  }
+}
+
+@layer components {
+  /* Display type: Fraunces at its optical size, soft corners for warmth. */
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: "SOFT" 50;
+    letter-spacing: -0.01em;
+  }
+
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Buttons. One primary style, used for the single main action on a screen. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.25rem;
+    padding: 0 0.9rem;
+    border-radius: 0.6rem;
+    font-size: 0.875rem;
+    font-weight: 560;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background-color 150ms, border-color 150ms, color 150ms, box-shadow 200ms, transform 120ms;
+    user-select: none;
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  .btn:disabled {
+    opacity: 0.5;
+  }
+  .btn-primary {
+    color: #07101f;
+    background: linear-gradient(135deg, var(--color-holo), color-mix(in oklab, var(--color-holo) 55%, var(--color-lilac)));
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-holo) 60%, transparent), 0 6px 24px -10px var(--color-holo);
+  }
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 0 0 1px var(--color-holo), 0 8px 30px -8px var(--color-holo);
+  }
+  .btn-quiet {
+    color: var(--color-text);
+    background: var(--color-panel);
+    border: 1px solid var(--color-hairline);
+  }
+  .btn-quiet:hover:not(:disabled) {
+    border-color: var(--color-line-strong);
+    background: var(--color-raised);
+  }
+  .btn-danger {
+    color: var(--color-changed);
+    background: transparent;
+    border: 1px solid color-mix(in oklab, var(--color-changed) 40%, transparent);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--color-changed) 12%, transparent);
+  }
+  .icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    color: var(--color-muted);
+    transition: background-color 150ms, color 150ms;
+  }
+  .icon-btn:hover:not(:disabled) {
+    color: var(--color-text);
+    background: color-mix(in oklab, var(--color-hairline) 70%, transparent);
+  }
+
+  /* Small labelled actions under an answer: icon and word on one line. */
+  .text-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2rem;
+    padding: 0 0.55rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    transition: background-color 150ms, color 150ms;
+  }
+  .text-btn:hover:not(:disabled) {
+    color: var(--color-text);
+    background: color-mix(in oklab, var(--color-hairline) 70%, transparent);
+  }
+  .text-btn:disabled {
+    opacity: 0.45;
+  }
+
+  .field {
+    width: 100%;
+    height: 2.25rem;
+    padding: 0 0.75rem;
+    border-radius: 0.55rem;
+    color: var(--color-text);
+    background: var(--color-ink-deep);
+    border: 1px solid var(--color-hairline);
+    font-size: 0.875rem;
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-holo);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-holo) 20%, transparent);
+  }
+
+  /* Status pills: the only places green and coral appear. */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  .pill::before {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: currentColor;
+  }
+  .pill-ok {
+    color: var(--color-ok);
+    background: color-mix(in oklab, var(--color-ok) 13%, transparent);
+  }
+  .pill-changed {
+    color: var(--color-changed);
+    background: color-mix(in oklab, var(--color-changed) 13%, transparent);
+  }
+  .pill-new {
+    color: var(--color-holo);
+    background: color-mix(in oklab, var(--color-holo) 12%, transparent);
+  }
+  .pill-unknown {
+    color: var(--color-muted);
+    background: color-mix(in oklab, var(--color-muted) 12%, transparent);
+  }
+
+  /* A recalled date: brass, because it is about the past. */
+  .date-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.05rem 0.45rem;
+    border-radius: 0.4rem;
+    color: var(--color-brass-soft);
+    background: color-mix(in oklab, var(--color-brass) 14%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-brass) 30%, transparent);
+    font-size: 0.78rem;
+    font-weight: 560;
+    white-space: nowrap;
+  }
+
+  .kbd {
+    display: inline-block;
+    padding: 0 0.3rem;
+    border-radius: 0.3rem;
+    border: 1px solid var(--color-hairline);
+    color: var(--color-muted);
+    font-size: 0.7rem;
+    line-height: 1.35rem;
+  }
+
+  /*
+   * Answers. Set for reading: 68 characters a line, generous leading, quiet headings,
+   * and tables that work as comparison grids (then, now, status).
+   */
+  .answer {
+    max-width: 68ch;
+    font-size: 0.97rem;
+    line-height: 1.68;
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+  }
+  .answer > :first-child {
+    margin-top: 0;
+  }
+  .answer > :last-child {
+    margin-bottom: 0;
+  }
+  .answer p,
+  .answer ul,
+  .answer ol,
+  .answer blockquote,
+  .answer pre,
+  .answer .table-wrap {
+    margin: 0 0 0.9em;
+  }
+  .answer h1,
+  .answer h2,
+  .answer h3,
+  .answer h4 {
+    margin: 1.4em 0 0.5em;
+    font-weight: 650;
+    line-height: 1.3;
+    letter-spacing: -0.005em;
+  }
+  .answer h1 {
+    font-size: 1.2rem;
+  }
+  .answer h2 {
+    font-size: 1.08rem;
+  }
+  .answer h3,
+  .answer h4 {
+    font-size: 1rem;
+  }
+  .answer strong {
+    font-weight: 650;
+    color: #fff;
+  }
+  .answer ul,
+  .answer ol {
+    padding-left: 1.3em;
+  }
+  .answer ul {
+    list-style: disc;
+  }
+  .answer ol {
+    list-style: decimal;
+  }
+  .answer li {
+    margin: 0.25em 0;
+    padding-left: 0.15em;
+  }
+  .answer li::marker {
+    color: var(--color-faint);
+  }
+  .answer a:not(.cite) {
+    color: var(--color-holo);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--color-holo) 40%, transparent);
+    text-underline-offset: 3px;
+  }
+  .answer a:not(.cite):hover {
+    text-decoration-color: var(--color-holo);
+  }
+  .answer blockquote {
+    padding-left: 0.9em;
+    border-left: 2px solid var(--color-line-strong);
+    color: var(--color-muted);
+  }
+  .answer code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    padding: 0.1em 0.35em;
+    border-radius: 0.3rem;
+    background: var(--color-panel);
+    border: 1px solid var(--color-hairline);
+  }
+  .answer pre {
+    padding: 0.85rem 1rem;
+    border-radius: 0.6rem;
+    background: var(--color-ink-deep);
+    border: 1px solid var(--color-hairline);
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+  .answer pre code {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 0.84rem;
+  }
+  .answer hr {
+    margin: 1.4em 0;
+    border: 0;
+    border-top: 1px solid var(--color-hairline);
+  }
+  .answer .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-hairline);
+    border-radius: 0.7rem;
+    background: color-mix(in oklab, var(--color-panel) 60%, transparent);
+  }
+  .answer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    font-variant-numeric: tabular-nums;
+  }
+  .answer th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--color-muted);
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--color-hairline);
+    white-space: nowrap;
+  }
+  .answer td {
+    padding: 0.55rem 0.8rem;
+    vertical-align: top;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-hairline) 60%, transparent);
+  }
+  .answer tr:last-child td {
+    border-bottom: 0;
+  }
+  .answer td:first-child {
+    font-weight: 560;
+  }
+
+  /* Inline citation: a small numbered seal that opens its source. */
+  .cite {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.15rem;
+    height: 1.15rem;
+    margin: 0 0.1em;
+    padding: 0 0.28rem;
+    border-radius: 0.35rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
+    vertical-align: 0.12em;
+    color: var(--color-holo);
+    background: color-mix(in oklab, var(--color-holo) 13%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-holo) 28%, transparent);
+    text-decoration: none;
+    transition: background-color 120ms, color 120ms;
+  }
+  .cite:hover,
+  .cite:focus-visible {
+    color: #07101f;
+    background: var(--color-holo);
+  }
+
+  /* While an answer streams, a caret sits at the end of its last line of text. */
+  .answer.is-streaming > :is(p, h1, h2, h3, h4):last-child::after,
+  .answer.is-streaming > :is(ul, ol):last-child > li:last-child::after,
+  .caret::after {
+    content: "";
+    display: inline-block;
+    width: 0.5em;
+    height: 1.05em;
+    margin-left: 0.15em;
+    vertical-align: -0.17em;
+    border-radius: 2px;
+    background: var(--color-holo);
+    box-shadow: 0 0 10px var(--color-holo);
+    animation: var(--animate-caret);
+  }
+
+  /* The faint star chart under the hologram: concentric hour circles, like an astrolabe plate. */
+  .star-plate {
+    background:
+      radial-gradient(circle at 50% 46%, color-mix(in oklab, var(--color-holo) 9%, transparent) 0, transparent 46%),
+      repeating-radial-gradient(circle at 50% 46%, transparent 0 63px, color-mix(in oklab, var(--color-hairline) 70%, transparent) 63px 64px);
+    mask-image: radial-gradient(circle at 50% 46%, #000 20%, transparent 64%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
